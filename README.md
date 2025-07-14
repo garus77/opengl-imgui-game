@@ -1,2 +1,2 @@
-# opengl-imgui-games
+# opengl-imgui-game
 learning
