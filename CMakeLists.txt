@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.14)
-project(opengl_imgui_game LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.16)
+project(opengl_imgui_game VERSION 0.1 LANGUAGES CXX)
 
 # --- Project settings ---
 set(CMAKE_CXX_STANDARD 17)
@@ -8,11 +8,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # --- Find system packages via pkg-config ---
 find_package(PkgConfig REQUIRED)
-
 pkg_check_modules(GLFW REQUIRED glfw3)
 pkg_check_modules(GLEW REQUIRED glew)
 
-# GLM is header-only; MSYS2 installs it under ucrt64/include/glm
+# --- GLM (header only) ---
 find_path(GLM_INCLUDE_DIR glm/glm.hpp)
 if (NOT GLM_INCLUDE_DIR)
   message(FATAL_ERROR "Could not find GLM headers")
@@ -23,6 +22,7 @@ include_directories(
   ${GLFW_INCLUDE_DIRS}
   ${GLEW_INCLUDE_DIRS}
   ${GLM_INCLUDE_DIR}
+  ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/external/imgui
   ${CMAKE_SOURCE_DIR}/external/imgui/backends
 )
@@ -63,12 +63,30 @@ target_include_directories(imgui_impl_opengl3 PUBLIC
   external/imgui/backends
 )
 
-# --- Your executable ---
-add_executable(MyGame
-  src/main.cpp
+# --- Your executable and sources ---
+file(GLOB_RECURSE PROJECT_SOURCES
+    CONFIGURE_DEPENDS
+    src/*.cpp
 )
 
-target_link_libraries(MyGame
+# --- Your executable ---
+add_executable(Game
+  ${PROJECT_SOURCES}
+)
+
+# --- Tell Game about all include dirs, including your include/ ---
+target_include_directories(Game
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${GLFW_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/external/imgui
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends
+)
+
+# --- Link Game against ImGui, GLFW, GLEW ---
+target_link_libraries(Game
   PRIVATE
     imgui
     imgui_impl_glfw
@@ -80,8 +98,8 @@ target_link_libraries(MyGame
 
 # Link OpenGL on Windows
 if (WIN32)
-  target_link_libraries(MyGame PRIVATE opengl32)
+  target_link_libraries(Game PRIVATE opengl32)
 endif()
 
 # --- Additional flags from pkg-config (optional) ---
-target_compile_options(MyGame PRIVATE ${GLFW_CFLAGS_OTHER} ${GLEW_CFLAGS_OTHER})
+# target_compile_options(Game PRIVATE ${GLFW_CFLAGS_OTHER} ${GLEW_CFLAGS_OTHER})

@@ -1,9 +1,4 @@
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <imgui.h>
-#include <iostream>
+#include "main.h"
 
 // Callback for window resize
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
@@ -22,7 +17,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // 2. Create window
-    GLFWwindow *window = glfwCreateWindow(800, 600, "MyGame", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "Game", nullptr, nullptr);
     if (!window)
     {
         std::cerr << "Failed to create GLFW window\n";
