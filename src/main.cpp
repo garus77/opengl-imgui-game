@@ -51,6 +51,10 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
+    int counter = 0;
+    bool flag = false;
+    bool show_demo_window = false;
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -63,10 +67,29 @@ int main()
         ImGui::NewFrame();
 
         // Example ImGui window
-        ImGui::Begin("Hello, ImGui!");
+        ImGui::Begin("Control Panel");
+
         ImGui::Text("This is a GLEW + GLFW + ImGui demo");
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        ImGui::Text("Button pressed %d times", counter);
+        ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+        ImGui::Text("Test: %.5f miliseconds", ImGui::GetIO().DeltaTime * 1000.0f);
+        ImGui::Text("Test: %s", ImGui::GetIO().IniFilename);
+        ImGui::Text("Mouse: %.2f, %.2f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+        if (ImGui::Button("Click Me"))
+        {
+            // std::cout << "Flag is: " << flag;
+            counter++;
+        }
+        ImGui::Checkbox("Enable Feature", &flag);
+        ImGui::Checkbox("Enable demo window", &show_demo_window);
+
+        ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
+        ImGui::Text("Im a child!");
+        ImGui::EndChild();
+
         ImGui::End();
+
+        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         // Rendering
         int display_w, display_h;
