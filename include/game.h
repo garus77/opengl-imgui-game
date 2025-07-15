@@ -28,4 +28,15 @@ class Game
         static void framebuffer_size_callback(GLFWwindow *window, int w, int h) { glViewport(0, 0, w, h); }
     } m_windowSettings;
     Logger &m_log = Logger::instance();
+
+    // openGL
+    struct OpenGLResources
+    {
+        GLuint m_shaderProgram = 0;
+        GLuint m_VAO = 0;
+        GLuint m_VBO = 0;
+    } m_openglResources;
+    std::string loadShaderSrc(const char *path);
+    GLuint compileShader(GLenum type, const char *src);
+    void setupScene(); // compiles shaders + buffers
 };

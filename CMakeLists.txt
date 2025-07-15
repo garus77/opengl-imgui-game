@@ -74,6 +74,13 @@ add_executable(Game
   ${PROJECT_SOURCES}
 )
 
+# Copy the entire 'resources' folder into your runtime output directory
+add_custom_command(TARGET Game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+)
+
 # --- Tell Game about all include dirs, including your include/ ---
 target_include_directories(Game
   PRIVATE
