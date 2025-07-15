@@ -74,12 +74,19 @@ add_executable(Game
   ${PROJECT_SOURCES}
 )
 
-# Copy the entire 'resources' folder into your runtime output directory
-add_custom_command(TARGET Game POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/resources
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+# 1) An always‐run target that cleans & copies your resources folder
+add_custom_target(copy_resources ALL
+  COMMENT "Copying resources to runtime directory"
+  # remove the old resources so deletions are reflected
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+  # copy the fresh ones
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/resources
+          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
 )
+
+add_dependencies(Game copy_resources)
 
 # --- Tell Game about all include dirs, including your include/ ---
 target_include_directories(Game

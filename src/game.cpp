@@ -172,9 +172,10 @@ void Game::gameLoop()
         }
         ImGui::Text("Triangle Controls:");
         ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
-        ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f);
+        ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
-        ImGui::SliderAngle("Rotation", &m_triangleRotate); // degrees → ImGui handles conversion
+        ImGui::SliderAngle("Rotation (degrees)", &m_triangleRotate, -180.0f, 180.0f, "%.0f deg"); // degrees → ImGui handles conversion
+        ImGui::DragFloat("Rotation (radians)", &m_triangleRotate, 0.01f, -M_PI, M_PI, "%.3f", ImGuiSliderFlags_WrapAround);
         ImGui::EndChild();
 
         ImGui::End();
