@@ -34,6 +34,7 @@ void Game::init()
     if (!m_window) throw std::runtime_error("Failed to create window");
     glfwMakeContextCurrent(m_window);
     glfwSetFramebufferSizeCallback(m_window, m_windowSettings.framebuffer_size_callback);
+    glfwSwapInterval(1);
 
     // 3. Initialize GLEW (load OpenGL function pointers)
     glewExperimental = GL_TRUE;
@@ -102,6 +103,11 @@ void Game::setupScene()
     glDeleteShader(vert);
     glDeleteShader(frag);
 
+    m_locColor = glGetUniformLocation(m_openglResources.m_shaderProgram, "uColor");
+    m_locOffset = glGetUniformLocation(m_openglResources.m_shaderProgram, "uOffset");
+    m_locScale = glGetUniformLocation(m_openglResources.m_shaderProgram, "uScale");
+    m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
+
     // 4) Set up a single-triangle VBO + VAO
     float vertices[] = {
         0.0f,  0.5f,  0.0f, // top
@@ -164,6 +170,11 @@ void Game::gameLoop()
         {
             Logger::instance().log(logMessage);
         }
+        ImGui::Text("Triangle Controls:");
+        ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
+        ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f);
+        ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
+        ImGui::SliderAngle("Rotation", &m_triangleRotate); // degrees → ImGui handles conversion
         ImGui::EndChild();
 
         ImGui::End();
@@ -180,6 +191,12 @@ void Game::gameLoop()
 
         // 2) Draw your OpenGL scene (triangle)
         glUseProgram(m_openglResources.m_shaderProgram);
+
+        glUniform3fv(m_locColor, 1, glm::value_ptr(m_triangleColor));
+        glUniform2fv(m_locOffset, 1, glm::value_ptr(m_triangleOffset));
+        glUniform1f(m_locScale, m_triangleScale);
+        glUniform1f(m_locRotation, m_triangleRotate);
+
         glBindVertexArray(m_openglResources.m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);

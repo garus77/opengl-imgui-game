@@ -4,6 +4,8 @@
 #include "logger.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <iostream>
 
@@ -39,4 +41,16 @@ class Game
     std::string loadShaderSrc(const char *path);
     GLuint compileShader(GLenum type, const char *src);
     void setupScene(); // compiles shaders + buffers
+
+    // in Game’s private section
+    glm::vec3 m_triangleColor = {1.0f, 0.5f, 0.2f};
+    glm::vec2 m_triangleOffset = {0.0f, 0.0f};
+    float m_triangleScale = 1.0f;
+    float m_triangleRotate = 0.0f; // in degrees
+
+    // after linking your shader program:
+    GLint m_locColor = -1;
+    GLint m_locOffset = -1;
+    GLint m_locScale = -1;
+    GLint m_locRotation = -1;
 };
