@@ -1,3 +1,4 @@
+// game.cpp
 #include "game.h"
 #include <fstream>
 #include <sstream>
@@ -24,6 +25,7 @@ int Game::run()
 
 void Game::init()
 {
+    // Initialize GLFW
     if (glfwInit() != GLFW_TRUE) throw std::runtime_error("Failed to initialize GLFW\n");
     // Request OpenGL 3.3 Core context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -36,20 +38,19 @@ void Game::init()
     glfwSetFramebufferSizeCallback(m_window, m_windowSettings.framebuffer_size_callback);
     glfwSwapInterval(1);
 
-    // 3. Initialize GLEW (load OpenGL function pointers)
+    // Initialize GLEW (load OpenGL function pointers)
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) throw std::runtime_error("Failed to initialize GLEW\n");
 
+    // Initialize ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
+    if (!ImGui_ImplGlfw_InitForOpenGL(m_window, true)) throw std::runtime_error("Failed to initialize ImGui for OpenGL\n");
+    if (!ImGui_ImplOpenGL3_Init("#version 330 core")) throw std::runtime_error("Failed to initialize OpenGL version for ImGui\n");
 
     // opengl
     setupScene();
-
-    m_log.log("Initialization complete");
 }
 
 std::string Game::loadShaderSrc(const char *path)
@@ -59,6 +60,7 @@ std::string Game::loadShaderSrc(const char *path)
     buf << file.rdbuf();
     return buf.str();
 }
+
 GLuint Game::compileShader(GLenum type, const char *src)
 {
     GLuint s = glCreateShader(type);
@@ -121,8 +123,10 @@ void Game::setupScene()
 
     glBindVertexArray(m_openglResources.m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_openglResources.m_VBO);
+
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 }
@@ -135,8 +139,6 @@ void Game::gameLoop()
     bool showControlPanel = true;
     bool leftCtrlDown = false;
     bool leftCtrlWasDown = false;
-
-    char logMessage[100] = {0};
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -175,11 +177,6 @@ void Game::gameLoop()
 
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
-            ImGui::InputText("A message to log", logMessage, 100);
-            if (ImGui::Button("Log the message"))
-            {
-                Logger::instance().log(logMessage);
-            }
             ImGui::Text("Triangle Controls:");
             ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
             ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
@@ -246,7 +243,4 @@ void Game::shutDown()
     glfwDestroyWindow(m_window);
     glfwTerminate();
     m_window = nullptr;
-
-    // Log
-    m_log.log("Shutdown complete");
 }
