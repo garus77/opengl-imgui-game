@@ -1,5 +1,6 @@
 // game.cpp
 #include "game.h"
+#include "init.h"
 #include <fstream>
 #include <sstream>
 
@@ -25,12 +26,9 @@ int Game::run()
 
 void Game::init()
 {
-    // Initialize GLFW
-    if (glfwInit() != GLFW_TRUE) throw std::runtime_error("Failed to initialize GLFW\n");
-    // Request OpenGL 3.3 Core context
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    init::GLFW();
+
+    // init::Window(m_window, m_windowSettings.m_width, m_windowSettings.m_height, m_windowSettings.m_title, m_windowSettings.framebuffer_size_callback);
 
     m_window = glfwCreateWindow(m_windowSettings.m_width, m_windowSettings.m_height, m_windowSettings.m_title, nullptr, nullptr);
     if (!m_window) throw std::runtime_error("Failed to create window");
@@ -38,18 +36,8 @@ void Game::init()
     glfwSetFramebufferSizeCallback(m_window, m_windowSettings.framebuffer_size_callback);
     glfwSwapInterval(1);
 
-    // Initialize GLEW (load OpenGL function pointers)
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) throw std::runtime_error("Failed to initialize GLEW\n");
-
-    // Initialize ImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-    if (!ImGui_ImplGlfw_InitForOpenGL(m_window, true)) throw std::runtime_error("Failed to initialize ImGui for OpenGL\n");
-    if (!ImGui_ImplOpenGL3_Init("#version 330 core")) throw std::runtime_error("Failed to initialize OpenGL version for ImGui\n");
-
-    // opengl
+    init::GLEW();
+    init::ImGui(m_window);
     setupScene();
 }
 
