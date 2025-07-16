@@ -5,7 +5,7 @@
 Game::Game() : m_window(nullptr)
 {
     m_windowSettings.m_width = 800;
-    m_windowSettings.m_height = 600;
+    m_windowSettings.m_height = 800;
     m_windowSettings.m_title = "A little game";
 }
 
@@ -110,9 +110,10 @@ void Game::setupScene()
 
     // 4) Set up a single-triangle VBO + VAO
     float vertices[] = {
-        0.0f,  0.5f,  0.0f, // top
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.5f,  -0.5f, 0.0f  // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom‑left
+        0.5f,  -0.5f, 0.0f, // bottom‑right
+        -0.5f, 0.5f,  0.0f, // top‑left
+        0.5f,  0.5f,  0.0f  // top‑right
     };
 
     glGenVertexArrays(1, &m_openglResources.m_VAO);
@@ -131,6 +132,9 @@ void Game::gameLoop()
     int counter = 0;
     bool flag = false;
     bool show_demo_window = false;
+    bool showControlPanel = true;
+    bool leftCtrlDown = false;
+    bool leftCtrlWasDown = false;
 
     char logMessage[100] = {0};
 
@@ -141,44 +145,51 @@ void Game::gameLoop()
 
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(m_window, true);
 
+        leftCtrlDown = (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
+        if (leftCtrlDown && !leftCtrlWasDown) showControlPanel = !showControlPanel;
+        leftCtrlWasDown = leftCtrlDown;
+
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
         // Example ImGui window
-        ImGui::Begin("Control Panel");
-
-        ImGui::Text("This is a GLEW + GLFW + ImGui demo");
-        ImGui::Text("Button pressed %d times", counter);
-        ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-        ImGui::Text("Test: %.5f miliseconds", ImGui::GetIO().DeltaTime * 1000.0f);
-        ImGui::Text("Test: %s", ImGui::GetIO().IniFilename);
-        ImGui::Text("Mouse: %.2f, %.2f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
-        if (ImGui::Button("Click Me"))
+        if (showControlPanel)
         {
-            // std::cout << "Flag is: " << flag;
-            counter++;
-        }
-        ImGui::Checkbox("Enable Feature", &flag);
-        ImGui::Checkbox("Enable demo window", &show_demo_window);
+            ImGui::Begin("Control Panel (Left ctrl to toggle)");
 
-        ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
-        ImGui::Text("Im a child!");
-        ImGui::InputText("A message to log", logMessage, 100);
-        if (ImGui::Button("Log the message"))
-        {
-            Logger::instance().log(logMessage);
-        }
-        ImGui::Text("Triangle Controls:");
-        ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
-        ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
-        ImGui::SliderAngle("Rotation (degrees)", &m_triangleRotate, -180.0f, 180.0f, "%.0f deg"); // degrees → ImGui handles conversion
-        ImGui::DragFloat("Rotation (radians)", &m_triangleRotate, 0.01f, -M_PI, M_PI, "%.3f", ImGuiSliderFlags_WrapAround);
-        ImGui::EndChild();
+            ImGui::Text("This is a GLEW + GLFW + ImGui demo");
+            ImGui::Text("Button pressed %d times", counter);
+            ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+            ImGui::Text("Test: %.5f miliseconds", ImGui::GetIO().DeltaTime * 1000.0f);
+            ImGui::Text("Test: %s", ImGui::GetIO().IniFilename);
+            ImGui::Text("Mouse: %.2f, %.2f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+            if (ImGui::Button("Click Me"))
+            {
+                // std::cout << "Flag is: " << flag;
+                counter++;
+            }
+            ImGui::Checkbox("Enable Feature", &flag);
+            ImGui::Checkbox("Enable demo window", &show_demo_window);
 
-        ImGui::End();
+            ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
+            ImGui::Text("Im a child!");
+            ImGui::InputText("A message to log", logMessage, 100);
+            if (ImGui::Button("Log the message"))
+            {
+                Logger::instance().log(logMessage);
+            }
+            ImGui::Text("Triangle Controls:");
+            ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
+            ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
+            ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
+            ImGui::SliderAngle("Rotation (degrees)", &m_triangleRotate, -180.0f, 180.0f, "%.0f deg"); // degrees → ImGui handles conversion
+            ImGui::DragFloat("Rotation (radians)", &m_triangleRotate, 0.01f, -M_PI, M_PI, "%.3f", ImGuiSliderFlags_WrapAround);
+            ImGui::EndChild();
+
+            ImGui::End();
+        }
 
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -186,6 +197,15 @@ void Game::gameLoop()
         // 1) Clear the backbuffer
         int display_w, display_h;
         glfwGetFramebufferSize(m_window, &display_w, &display_h);
+
+        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            double mx, my;
+            glfwGetCursorPos(m_window, &mx, &my);
+            m_triangleOffset.x = float((mx / display_w) * 2.0 - 1.0);
+            m_triangleOffset.y = float(1.0 - (my / display_h) * 2.0);
+        }
+
         glViewport(0, 0, display_w, display_h);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -199,7 +219,7 @@ void Game::gameLoop()
         glUniform1f(m_locRotation, m_triangleRotate);
 
         glBindVertexArray(m_openglResources.m_VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
 
         ImGui::Render();
