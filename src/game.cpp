@@ -194,6 +194,9 @@ void Game::gameLoop()
         // 1) Clear the backbuffer
         int display_w, display_h;
         glfwGetFramebufferSize(m_window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         if (followMouse)
         {
@@ -205,10 +208,6 @@ void Game::gameLoop()
                 m_triangleOffset.y = float(1.0 - (my / display_h) * 2.0);
             }
         }
-
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         // 2) Draw your OpenGL scene (triangle)
         glUseProgram(m_openglResources.m_shaderProgram);
