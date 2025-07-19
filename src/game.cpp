@@ -1,6 +1,5 @@
 // game.cpp
 #include "game.h"
-#include "init.h"
 #include <fstream>
 #include <sstream>
 
@@ -26,18 +25,31 @@ int Game::run()
 
 void Game::init()
 {
-    init::GLFW();
 
-    // init::Window(m_window, m_windowSettings.m_width, m_windowSettings.m_height, m_windowSettings.m_title, m_windowSettings.framebuffer_size_callback);
+    // Initialize GLFW
+    if (glfwInit() != GLFW_TRUE) throw std::runtime_error("Failed to initialize GLFW\n");
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // Initialize window
     m_window = glfwCreateWindow(m_windowSettings.m_width, m_windowSettings.m_height, m_windowSettings.m_title, nullptr, nullptr);
     if (!m_window) throw std::runtime_error("Failed to create window");
     glfwMakeContextCurrent(m_window);
     glfwSetFramebufferSizeCallback(m_window, m_windowSettings.framebuffer_size_callback);
     glfwSwapInterval(1);
 
-    init::GLEW();
-    init::ImGui(m_window);
+    // Initialize GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) throw std::runtime_error("Failed to initialize GLEW\n");
+
+    // Initialize ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    if (!ImGui_ImplGlfw_InitForOpenGL(m_window, true)) throw std::runtime_error("Failed to initialize ImGui for OpenGL\n");
+    if (!ImGui_ImplOpenGL3_Init("#version 330 core")) throw std::runtime_error("Failed to initialize OpenGL version for ImGui\n");
+
     setupScene();
 }
 
@@ -122,11 +134,11 @@ void Game::setupScene()
 void Game::gameLoop()
 {
     int counter = 0;
-    bool flag = false;
     bool show_demo_window = false;
     bool showControlPanel = true;
     bool leftCtrlDown = false;
     bool leftCtrlWasDown = false;
+    bool followMouse = false;
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -160,7 +172,7 @@ void Game::gameLoop()
                 // std::cout << "Flag is: " << flag;
                 counter++;
             }
-            ImGui::Checkbox("Enable Feature", &flag);
+            ImGui::Checkbox("Enable mouse following on click", &followMouse);
             ImGui::Checkbox("Enable demo window", &show_demo_window);
 
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
@@ -183,12 +195,15 @@ void Game::gameLoop()
         int display_w, display_h;
         glfwGetFramebufferSize(m_window, &display_w, &display_h);
 
-        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        if (followMouse)
         {
-            double mx, my;
-            glfwGetCursorPos(m_window, &mx, &my);
-            m_triangleOffset.x = float((mx / display_w) * 2.0 - 1.0);
-            m_triangleOffset.y = float(1.0 - (my / display_h) * 2.0);
+            if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+            {
+                double mx, my;
+                glfwGetCursorPos(m_window, &mx, &my);
+                m_triangleOffset.x = float((mx / display_w) * 2.0 - 1.0);
+                m_triangleOffset.y = float(1.0 - (my / display_h) * 2.0);
+            }
         }
 
         glViewport(0, 0, display_w, display_h);
