@@ -6,7 +6,7 @@
 class Texture
 {
   public:
-    /// Loads the texture from `path`. Throws on failure.
+    /// Loads the texture from 'path'. Throws on failure.
     Texture(const std::string &path, bool flipVertically = true);
 
     /// Cleans up the GPU resource.

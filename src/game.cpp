@@ -112,12 +112,13 @@ void Game::setupScene()
     m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
 
     // 4) Set up a single-triangle VBO + VAO
+    float tiling = 5.0f;
     float vertices[] = {
         //  x      y     z    u     v
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
-        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, //
-        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, //
-        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, //
+        -0.5f, -0.5f, 0.0f, 0.0f,          0.0f,          //
+        0.5f,  -0.5f, 0.0f, 1.0f * tiling, 0.0f,          //
+        -0.5f, 0.5f,  0.0f, 0.0f,          1.0f * tiling, //
+        0.5f,  0.5f,  0.0f, 1.0f * tiling, 1.0f * tiling, //
     };
 
     glGenVertexArrays(1, &m_openglResources.m_VAO);
@@ -142,22 +143,22 @@ void Game::gameLoop()
     int counter = 0;
     bool show_demo_window = false;
     bool showControlPanel = true;
-    bool leftCtrlDown = false;
-    bool leftCtrlWasDown = false;
+    bool TabDown = false;
+    bool TabWasDown = false;
     bool followMouse = false;
 
-    Texture testTexture("resources/textures/brick.jpg");
+    Texture testTexture("resources/textures/brick_x32.png");
 
     while (!glfwWindowShouldClose(m_window))
     {
         // Poll events
         glfwPollEvents();
 
-        if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(m_window, true);
+        // if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(m_window, true);
 
-        leftCtrlDown = (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
-        if (leftCtrlDown && !leftCtrlWasDown) showControlPanel = !showControlPanel;
-        leftCtrlWasDown = leftCtrlDown;
+        TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
+        if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
+        TabWasDown = TabDown;
 
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -167,7 +168,7 @@ void Game::gameLoop()
         // Example ImGui window
         if (showControlPanel)
         {
-            ImGui::Begin("Control Panel (Left ctrl to toggle)");
+            ImGui::Begin("Control Panel (Tab to toggle)");
 
             ImGui::Text("This is a GLEW + GLFW + ImGui demo");
             ImGui::Text("Button pressed %d times", counter);
