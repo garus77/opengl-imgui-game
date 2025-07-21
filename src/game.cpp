@@ -1,5 +1,6 @@
 // game.cpp
 #include "game.h"
+#include "texture.h"
 #include <fstream>
 #include <sstream>
 

@@ -25,6 +25,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/external/imgui
   ${CMAKE_SOURCE_DIR}/external/imgui/backends
+  ${CMAKE_SOURCE_DIR}/external/stb
 )
 
 # --- ImGui ---
