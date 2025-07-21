@@ -106,17 +106,18 @@ void Game::setupScene()
     glDeleteShader(vert);
     glDeleteShader(frag);
 
-    m_locColor = glGetUniformLocation(m_openglResources.m_shaderProgram, "uColor");
+    // m_locColor = glGetUniformLocation(m_openglResources.m_shaderProgram, "uColor");
     m_locOffset = glGetUniformLocation(m_openglResources.m_shaderProgram, "uOffset");
     m_locScale = glGetUniformLocation(m_openglResources.m_shaderProgram, "uScale");
     m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
 
     // 4) Set up a single-triangle VBO + VAO
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // bottom‑left
-        0.5f,  -0.5f, 0.0f, // bottom‑right
-        -0.5f, 0.5f,  0.0f, // top‑left
-        0.5f,  0.5f,  0.0f  // top‑right
+        //  x      y     z    u     v
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
+        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, //
+        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, //
+        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, //
     };
 
     glGenVertexArrays(1, &m_openglResources.m_VAO);
@@ -126,9 +127,13 @@ void Game::setupScene()
     glBindBuffer(GL_ARRAY_BUFFER, m_openglResources.m_VBO);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
 
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     glBindVertexArray(0);
 }
 
@@ -140,6 +145,8 @@ void Game::gameLoop()
     bool leftCtrlDown = false;
     bool leftCtrlWasDown = false;
     bool followMouse = false;
+
+    Texture testTexture("resources/textures/brick.jpg");
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -179,7 +186,7 @@ void Game::gameLoop()
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
             ImGui::Text("Triangle Controls:");
-            ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
+            // ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
             ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
             ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
             ImGui::SliderAngle("Rotation (degrees)", &m_triangleRotate, -180.0f, 180.0f, "%.0f deg"); // degrees → ImGui handles conversion
@@ -212,11 +219,17 @@ void Game::gameLoop()
 
         // 2) Draw your OpenGL scene (triangle)
         glUseProgram(m_openglResources.m_shaderProgram);
+        testTexture.Bind(0);
+        glUniform1i(glGetUniformLocation(m_openglResources.m_shaderProgram, "uTexture"), 0);
 
-        glUniform3fv(m_locColor, 1, glm::value_ptr(m_triangleColor));
+        // glUniform3fv(m_locColor, 1, glm::value_ptr(m_triangleColor));
         glUniform2fv(m_locOffset, 1, glm::value_ptr(m_triangleOffset));
         glUniform1f(m_locScale, m_triangleScale);
         glUniform1f(m_locRotation, m_triangleRotate);
+
+        // Bind your texture to unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, testTexture.GetID());
 
         glBindVertexArray(m_openglResources.m_VAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
