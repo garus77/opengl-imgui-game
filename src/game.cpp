@@ -1,5 +1,6 @@
 // game.cpp
 #include "game.h"
+#include "shader.h"
 #include "texture.h"
 #include <fstream>
 #include <sstream>
@@ -80,31 +81,7 @@ GLuint Game::compileShader(GLenum type, const char *src)
 
 void Game::setupScene()
 {
-    // 1) Load sources
-    auto vertexSrc = loadShaderSrc("resources/shaders/vertex.glsl");
-    auto fragmentSrc = loadShaderSrc("resources/shaders/fragment.glsl");
-
-    // 2) Compile
-    GLuint vert = compileShader(GL_VERTEX_SHADER, vertexSrc.c_str());
-    GLuint frag = compileShader(GL_FRAGMENT_SHADER, fragmentSrc.c_str());
-
-    // 3) Link program
-    m_openglResources.m_shaderProgram = glCreateProgram();
-    glAttachShader(m_openglResources.m_shaderProgram, vert);
-    glAttachShader(m_openglResources.m_shaderProgram, frag);
-    glLinkProgram(m_openglResources.m_shaderProgram);
-
-    // check link status
-    GLint ok;
-    glGetProgramiv(m_openglResources.m_shaderProgram, GL_LINK_STATUS, &ok);
-    if (!ok)
-    {
-        char log[512];
-        glGetProgramInfoLog(m_openglResources.m_shaderProgram, 512, nullptr, log);
-        throw std::runtime_error(std::string("Program link error:\n") + log);
-    }
-    glDeleteShader(vert);
-    glDeleteShader(frag);
+    m_openglResources.m_shaderProgram = Shader::buildShaderProgram("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl");
 
     // m_locColor = glGetUniformLocation(m_openglResources.m_shaderProgram, "uColor");
     m_locOffset = glGetUniformLocation(m_openglResources.m_shaderProgram, "uOffset");
@@ -112,7 +89,7 @@ void Game::setupScene()
     m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
 
     // 4) Set up a single-triangle VBO + VAO
-    float tiling = 5.0f;
+    float tiling = 15.0f;
     float vertices[] = {
         //  x      y     z    u     v
         -0.5f, -0.5f, 0.0f, 0.0f,          0.0f,          //
@@ -153,8 +130,6 @@ void Game::gameLoop()
     {
         // Poll events
         glfwPollEvents();
-
-        // if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(m_window, true);
 
         TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
         if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
