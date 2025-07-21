@@ -88,7 +88,7 @@ void Game::setupScene()
     m_locScale = glGetUniformLocation(m_openglResources.m_shaderProgram, "uScale");
     m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
 
-    // 4) Set up a single-triangle VBO + VAO
+    // 4) Set up a single square VBO + VAO
     float tiling = 15.0f;
     float vertices[] = {
         //  x      y     z    u     v
