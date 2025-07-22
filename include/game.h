@@ -19,7 +19,7 @@ class Game
     void init();
     void gameLoop();
     void shutDown();
-
+    void setupScene(); // compiles shaders + buffers
     GLFWwindow *m_window;
     struct WindowSettings
     {
@@ -36,7 +36,6 @@ class Game
         GLuint m_VAO = 0;
         GLuint m_VBO = 0;
     } m_openglResources;
-    void setupScene(); // compiles shaders + buffers
 
     // in Game’s private section
     glm::vec3 m_triangleColor = {1.0f, 0.5f, 0.2f};

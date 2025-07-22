@@ -74,6 +74,7 @@ void Game::setupScene()
         0.5f,  0.5f,  0.0f, 1.0f * tiling, 1.0f * tiling, //
     };
 
+    // YOU NEED TO GENERATE VAO BEFORE VBO
     glGenVertexArrays(1, &m_openglResources.m_VAO);
     glGenBuffers(1, &m_openglResources.m_VBO);
 

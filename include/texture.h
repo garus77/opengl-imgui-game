@@ -6,19 +6,19 @@
 class Texture
 {
   public:
-    /// Loads the texture from 'path'. Throws on failure.
+    // Loads the texture from 'path'. Throws on failure.
     Texture(const std::string &path, bool flipVertically = true);
 
-    /// Cleans up the GPU resource.
+    // Cleans up the GPU resource.
     ~Texture();
 
     /// Bind to the given texture unit (0,1,2...)
     void Bind(GLuint unit = 0) const;
 
-    /// Unbinds any texture from GL_TEXTURE_2D
+    // Unbinds any texture from GL_TEXTURE_2D
     static void Unbind();
 
-    /// Returns the raw OpenGL texture handle
+    // Returns the raw OpenGL texture handle
     GLuint GetID() const { return m_id; }
 
   private:

@@ -15,7 +15,7 @@ Texture::Texture(const std::string &path, bool flipVertically)
     glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
 
-    // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // needed if size isnt divisible by 4 (idk what's size)
 
     glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
