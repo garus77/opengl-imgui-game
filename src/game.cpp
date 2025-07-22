@@ -55,30 +55,6 @@ void Game::init()
     setupScene();
 }
 
-std::string Game::loadShaderSrc(const char *path)
-{
-    std::ifstream file(path);
-    std::stringstream buf;
-    buf << file.rdbuf();
-    return buf.str();
-}
-
-GLuint Game::compileShader(GLenum type, const char *src)
-{
-    GLuint s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
-    GLint ok;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (!ok)
-    {
-        char log[512];
-        glGetShaderInfoLog(s, 512, nullptr, log);
-        throw std::runtime_error(std::string("Shader compile error:\n") + log);
-    }
-    return s;
-}
-
 void Game::setupScene()
 {
     m_openglResources.m_shaderProgram = Shader::buildShaderProgram("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl");

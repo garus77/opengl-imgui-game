@@ -36,8 +36,6 @@ class Game
         GLuint m_VAO = 0;
         GLuint m_VBO = 0;
     } m_openglResources;
-    std::string loadShaderSrc(const char *path);
-    GLuint compileShader(GLenum type, const char *src);
     void setupScene(); // compiles shaders + buffers
 
     // in Game’s private section
