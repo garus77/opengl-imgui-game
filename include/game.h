@@ -31,6 +31,7 @@ class Game
     } m_windowSettings;
 
     Renderer m_renderer;
+    Texture m_brickTex;
 
     /*
     // openGL

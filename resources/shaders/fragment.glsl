@@ -7,4 +7,5 @@ out vec4 FragColor;
 
 void main(){
     FragColor = texture(uTexture, vUV);
+    // FragColor = vec4(1,0,1,1);
 }

@@ -59,19 +59,19 @@ void Game::init()
 
 void Game::setupScene()
 {
-    Texture brickTex("resources/textures/brick_x32.png");
+    m_brickTex = Texture("resources/textures/brick_x32.png");
     std::vector<Vertex> verts = {
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}}, //
-        {{0.5f, -0.5f, 0.0f}, {15.0f, 0.0f}}, //
-        {{0.5f, 0.5f, 0.0f}, {15.0f, 15.0f}}, //
-        {{-0.5f, 0.5f, 0.0f}, {0.0f, 15.0f}}, //
+        {{-50.0f, -50.0f, 0.0f}, {0.0f, 0.0f}}, //
+        {{50.0f, -50.0f, 0.0f}, {1.0f, 0.0f}},  //
+        {{50.0f, 50.0f, 0.0f}, {1.0f, 1.0f}},   //
+        {{-50.0f, 50.0f, 0.0f}, {0.0f, 1.0f}},  //
     };
     std::vector<unsigned> idx = {0, 1, 2, 0, 2, 3};
 
-    Mesh *quadMesh = new Mesh(verts, idx, brickTex);
+    Mesh *quadMesh = new Mesh(verts, idx, m_brickTex);
 
-    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-0.5f, -0.5f));
-    SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(0.5f, 0.5f));
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-50.0f, -50.0f));
+    SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
 
     m_renderer.getScene().addObject(obj1);
     m_renderer.getScene().addObject(obj2);

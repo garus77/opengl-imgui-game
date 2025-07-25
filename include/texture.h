@@ -8,6 +8,7 @@ class Texture
   public:
     // Loads the texture from 'path'. Throws on failure.
     Texture(const std::string &path, bool flipVertically = true);
+    Texture() = default;
 
     // Cleans up the GPU resource.
     ~Texture();
