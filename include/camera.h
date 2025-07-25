@@ -10,6 +10,9 @@ class Camera
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;
 
+    float &getZoom();
+    glm::vec2 &getPos();
+
   private:
     glm::vec2 m_position;
     float m_zoom;

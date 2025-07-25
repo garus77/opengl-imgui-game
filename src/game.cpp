@@ -66,9 +66,9 @@ void Game::setupScene()
         {{50.0f, 50.0f, 0.0f}, {1.0f, 1.0f}},   //
         {{-50.0f, 50.0f, 0.0f}, {0.0f, 1.0f}},  //
     };
-    std::vector<unsigned> idx = {0, 1, 2, 0, 2, 3};
+    std::vector<unsigned> inds = {0, 1, 2, 0, 2, 3};
 
-    Mesh *quadMesh = new Mesh(verts, idx, *m_brickTex);
+    Mesh *quadMesh = new Mesh(verts, inds, *m_brickTex);
 
     SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-50.0f, -50.0f));
     SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
@@ -84,6 +84,9 @@ void Game::gameLoop()
     bool showControlPanel = true;
     bool TabDown = false;
     bool TabWasDown = false;
+
+    float *zoom = &m_renderer.getCamera().getZoom();
+    float *pos = glm::value_ptr(m_renderer.getCamera().getPos());
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -119,10 +122,14 @@ void Game::gameLoop()
 
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
+            ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 2.0f);
+            ImGui::SliderFloat2("Camera position", pos, -400.0f, 400.0f);
             ImGui::EndChild();
 
             ImGui::End();
         }
+
+        // m_renderer.getCamera().setZoom(zoom);
 
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 

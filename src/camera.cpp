@@ -8,6 +8,10 @@ void Camera::setPosition(glm::vec2 newPosition) { m_position = newPosition; }
 
 void Camera::setZoom(float newZoom) { m_zoom = newZoom; }
 
+float &Camera::getZoom() { return m_zoom; }
+
+glm::vec2 &Camera::getPos() { return m_position; }
+
 glm::mat4 Camera::getViewMatrix() const
 {
     // translate world by -camera position

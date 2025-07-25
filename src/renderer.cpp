@@ -38,6 +38,7 @@ void Renderer::renderFrame()
 
     m_shader.use();
     // if camera moved/zoomed, update:
+    m_shader.setMat4("uProjection", m_camera.getProjectionMatrix());
     m_shader.setMat4("uView", m_camera.getViewMatrix());
 
     // draw all objects
