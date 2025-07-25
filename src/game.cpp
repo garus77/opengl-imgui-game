@@ -38,8 +38,17 @@ void Game::init()
     m_window = glfwCreateWindow(m_windowSettings.m_width, m_windowSettings.m_height, m_windowSettings.m_title, nullptr, nullptr);
     if (!m_window) throw std::runtime_error("Failed to create window");
     glfwMakeContextCurrent(m_window);
-    glfwSetFramebufferSizeCallback(m_window, m_windowSettings.framebuffer_size_callback);
-    glfwSwapInterval(1);
+    glfwSetWindowUserPointer(m_window, &m_renderer);
+    glfwSetFramebufferSizeCallback(m_window,
+                                   [](GLFWwindow *win, int w, int h)
+                                   {
+                                       // first the GL viewport
+                                       glViewport(0, 0, w, h);
+                                       // now tell our Renderer
+                                       Renderer *R = static_cast<Renderer *>(glfwGetWindowUserPointer(win));
+                                       if (R) R->onResize(w, h);
+                                   });
+    // glfwSwapInterval(1);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;

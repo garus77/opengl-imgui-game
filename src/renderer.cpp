@@ -10,6 +10,15 @@ SceneManager &Renderer::getScene() { return m_scene; }
 
 Camera &Renderer::getCamera() { return m_camera; }
 
+void Renderer::onResize(int width, int height)
+{
+    m_width = width;
+    m_height = height;
+    m_camera.setSize(width, height);
+    m_shader.use();
+    m_shader.setMat4("uProjection", m_camera.getProjectionMatrix());
+}
+
 void Renderer::init(GLFWwindow *window)
 {
     m_window = window;
@@ -32,7 +41,7 @@ void Renderer::init(GLFWwindow *window)
 
 void Renderer::renderFrame()
 {
-    glViewport(0, 0, m_width, m_height);
+    // glViewport(0, 0, m_width, m_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 

@@ -13,6 +13,7 @@ class Renderer
     void init(GLFWwindow *window);
     void renderFrame();
     void cleanup();
+    void onResize(int width, int height);
 
     SceneManager &getScene();
     Camera &getCamera();

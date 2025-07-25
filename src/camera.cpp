@@ -6,6 +6,12 @@ Camera::Camera(float width, float height) : m_width(width), m_height(height), m_
 
 void Camera::setPosition(glm::vec2 newPosition) { m_position = newPosition; }
 
+void Camera::setSize(float newWidth, float newHeight)
+{
+    m_width = newWidth;
+    m_height = newHeight;
+}
+
 void Camera::setZoom(float newZoom) { m_zoom = newZoom; }
 
 float &Camera::getZoom() { return m_zoom; }

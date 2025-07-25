@@ -27,7 +27,6 @@ class Game
         int m_width;
         int m_height;
         const char *m_title;
-        static void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
     } m_windowSettings;
 
     Renderer m_renderer;
