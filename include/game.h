@@ -31,27 +31,5 @@ class Game
     } m_windowSettings;
 
     Renderer m_renderer;
-    Texture m_brickTex;
-
-    /*
-    // openGL
-    struct OpenGLResources
-    {
-        GLuint m_shaderProgram = 0;
-        GLuint m_VAO = 0;
-        GLuint m_VBO = 0;
-    } m_openglResources;
-
-    // in Game’s private section
-    glm::vec3 m_triangleColor = {1.0f, 0.5f, 0.2f};
-    glm::vec2 m_triangleOffset = {0.0f, 0.0f};
-    float m_triangleScale = 1.0f;
-    float m_triangleRotate = 0.0f; // in degrees
-
-    // after linking your shader program:
-    GLint m_locColor = -1;
-    GLint m_locOffset = -1;
-    GLint m_locScale = -1;
-    GLint m_locRotation = -1;
-    */
+    Texture *m_brickTex;
 };

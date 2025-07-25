@@ -59,7 +59,7 @@ void Game::init()
 
 void Game::setupScene()
 {
-    m_brickTex = Texture("resources/textures/brick_x32.png");
+    m_brickTex = new Texture("resources/textures/brick_x32.png");
     std::vector<Vertex> verts = {
         {{-50.0f, -50.0f, 0.0f}, {0.0f, 0.0f}}, //
         {{50.0f, -50.0f, 0.0f}, {1.0f, 0.0f}},  //
@@ -68,7 +68,7 @@ void Game::setupScene()
     };
     std::vector<unsigned> idx = {0, 1, 2, 0, 2, 3};
 
-    Mesh *quadMesh = new Mesh(verts, idx, m_brickTex);
+    Mesh *quadMesh = new Mesh(verts, idx, *m_brickTex);
 
     SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-50.0f, -50.0f));
     SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
@@ -143,13 +143,6 @@ void Game::shutDown()
     ImGui::DestroyContext();
 
     m_renderer.cleanup();
-
-    /*
-    // GL cleanup
-    if (m_openglResources.m_shaderProgram) glDeleteProgram(m_openglResources.m_shaderProgram);
-    if (m_openglResources.m_VBO) glDeleteBuffers(1, &m_openglResources.m_VBO);
-    if (m_openglResources.m_VAO) glDeleteVertexArrays(1, &m_openglResources.m_VAO);
-    */
 
     // GLFW cleanup
     glfwDestroyWindow(m_window);
