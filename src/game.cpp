@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-Game::Game() : m_window(nullptr)
+Game::Game() : m_window(nullptr), m_renderer(800, 800)
 {
     m_windowSettings.m_width = 800;
     m_windowSettings.m_height = 800;
@@ -52,44 +52,29 @@ void Game::init()
     if (!ImGui_ImplGlfw_InitForOpenGL(m_window, true)) throw std::runtime_error("Failed to initialize ImGui for OpenGL\n");
     if (!ImGui_ImplOpenGL3_Init("#version 330 core")) throw std::runtime_error("Failed to initialize OpenGL version for ImGui\n");
 
+    m_renderer.init(m_window);
+
     setupScene();
 }
 
 void Game::setupScene()
 {
-    m_openglResources.m_shaderProgram = Shader::buildShaderProgram("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl");
-
-    // m_locColor = glGetUniformLocation(m_openglResources.m_shaderProgram, "uColor");
-    m_locOffset = glGetUniformLocation(m_openglResources.m_shaderProgram, "uOffset");
-    m_locScale = glGetUniformLocation(m_openglResources.m_shaderProgram, "uScale");
-    m_locRotation = glGetUniformLocation(m_openglResources.m_shaderProgram, "uRotation");
-
-    // 4) Set up a single square VBO + VAO
-    float tiling = 15.0f;
-    float vertices[] = {
-        //  x      y     z    u     v
-        -0.5f, -0.5f, 0.0f, 0.0f,          0.0f,          //
-        0.5f,  -0.5f, 0.0f, 1.0f * tiling, 0.0f,          //
-        -0.5f, 0.5f,  0.0f, 0.0f,          1.0f * tiling, //
-        0.5f,  0.5f,  0.0f, 1.0f * tiling, 1.0f * tiling, //
+    Texture brickTex("resources/textures/brick_x32.png");
+    std::vector<Vertex> verts = {
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}}, //
+        {{0.5f, -0.5f, 0.0f}, {15.0f, 0.0f}}, //
+        {{0.5f, 0.5f, 0.0f}, {15.0f, 15.0f}}, //
+        {{-0.5f, 0.5f, 0.0f}, {0.0f, 15.0f}}, //
     };
+    std::vector<unsigned> idx = {0, 1, 2, 0, 2, 3};
 
-    // YOU NEED TO GENERATE VAO BEFORE VBO
-    glGenVertexArrays(1, &m_openglResources.m_VAO);
-    glGenBuffers(1, &m_openglResources.m_VBO);
+    Mesh *quadMesh = new Mesh(verts, idx, brickTex);
 
-    glBindVertexArray(m_openglResources.m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_openglResources.m_VBO);
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-0.5f, -0.5f));
+    SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(0.5f, 0.5f));
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
+    m_renderer.getScene().addObject(obj1);
+    m_renderer.getScene().addObject(obj2);
 }
 
 void Game::gameLoop()
@@ -99,9 +84,6 @@ void Game::gameLoop()
     bool showControlPanel = true;
     bool TabDown = false;
     bool TabWasDown = false;
-    bool followMouse = false;
-
-    Texture testTexture("resources/textures/brick_x32.png");
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -133,17 +115,10 @@ void Game::gameLoop()
                 // std::cout << "Flag is: " << flag;
                 counter++;
             }
-            ImGui::Checkbox("Enable mouse following on click", &followMouse);
             ImGui::Checkbox("Enable demo window", &show_demo_window);
 
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
-            ImGui::Text("Triangle Controls:");
-            // ImGui::ColorEdit3("Color", glm::value_ptr(m_triangleColor));
-            ImGui::SliderFloat2("Offset", glm::value_ptr(m_triangleOffset), -1.0f, 1.0f, "%.3f");
-            ImGui::SliderFloat("Scale", &m_triangleScale, 0.1f, 2.0f);
-            ImGui::SliderAngle("Rotation (degrees)", &m_triangleRotate, -180.0f, 180.0f, "%.0f deg"); // degrees → ImGui handles conversion
-            ImGui::DragFloat("Rotation (radians)", &m_triangleRotate, 0.01f, -M_PI, M_PI, "%.3f", ImGuiSliderFlags_WrapAround);
             ImGui::EndChild();
 
             ImGui::End();
@@ -151,43 +126,7 @@ void Game::gameLoop()
 
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-        // Rendering
-        // 1) Clear the backbuffer
-        int display_w, display_h;
-        glfwGetFramebufferSize(m_window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        if (followMouse)
-        {
-            if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-            {
-                double mx, my;
-                glfwGetCursorPos(m_window, &mx, &my);
-                m_triangleOffset.x = float((mx / display_w) * 2.0 - 1.0);
-                m_triangleOffset.y = float(1.0 - (my / display_h) * 2.0);
-            }
-        }
-
-        // 2) Draw your OpenGL scene (triangle)
-        glUseProgram(m_openglResources.m_shaderProgram);
-        testTexture.Bind(0);
-        glUniform1i(glGetUniformLocation(m_openglResources.m_shaderProgram, "uTexture"), 0);
-
-        // glUniform3fv(m_locColor, 1, glm::value_ptr(m_triangleColor));
-        glUniform2fv(m_locOffset, 1, glm::value_ptr(m_triangleOffset));
-        glUniform1f(m_locScale, m_triangleScale);
-        glUniform1f(m_locRotation, m_triangleRotate);
-
-        // Bind your texture to unit 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, testTexture.GetID());
-
-        glBindVertexArray(m_openglResources.m_VAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glBindVertexArray(0);
-
+        m_renderer.renderFrame();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -203,10 +142,14 @@ void Game::shutDown()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
+    m_renderer.cleanup();
+
+    /*
     // GL cleanup
     if (m_openglResources.m_shaderProgram) glDeleteProgram(m_openglResources.m_shaderProgram);
     if (m_openglResources.m_VBO) glDeleteBuffers(1, &m_openglResources.m_VBO);
     if (m_openglResources.m_VAO) glDeleteVertexArrays(1, &m_openglResources.m_VAO);
+    */
 
     // GLFW cleanup
     glfwDestroyWindow(m_window);

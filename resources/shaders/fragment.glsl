@@ -1,12 +1,10 @@
 // fragment.glsl
 #version 330 core
 
-in vec2 vTexCoord;
+in vec2 vUV;
+uniform sampler2D uTexture;
 out vec4 FragColor;
 
-uniform sampler2D uTexture;
-
-void main()
-{
-    FragColor = texture(uTexture, vTexCoord);
+void main(){
+    FragColor = texture(uTexture, vUV);
 }

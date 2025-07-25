@@ -1,6 +1,7 @@
 #pragma once // game.h
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "renderer.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -19,7 +20,7 @@ class Game
     void init();
     void gameLoop();
     void shutDown();
-    void setupScene(); // compiles shaders + buffers
+    void setupScene();
     GLFWwindow *m_window;
     struct WindowSettings
     {
@@ -29,6 +30,9 @@ class Game
         static void framebuffer_size_callback(GLFWwindow *window, int w, int h) { glViewport(0, 0, w, h); }
     } m_windowSettings;
 
+    Renderer m_renderer;
+
+    /*
     // openGL
     struct OpenGLResources
     {
@@ -48,4 +52,5 @@ class Game
     GLint m_locOffset = -1;
     GLint m_locScale = -1;
     GLint m_locRotation = -1;
+    */
 };

@@ -5,7 +5,11 @@
 class SceneObject
 {
   public:
+    SceneObject(Mesh &mesh, const glm::vec2 &worldPosisiton);
+    void draw(GLuint shaderProgram) const;
+    void setPosition(const glm::vec2 &worldPosition);
+
   private:
-    Mesh mesh;
-    glm::vec2 worldPos;
+    Mesh m_mesh;
+    glm::vec2 m_worldPos;
 };
