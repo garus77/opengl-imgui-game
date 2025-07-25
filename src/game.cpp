@@ -48,7 +48,7 @@ void Game::init()
                                        Renderer *R = static_cast<Renderer *>(glfwGetWindowUserPointer(win));
                                        if (R) R->onResize(w, h);
                                    });
-    // glfwSwapInterval(1);
+    glfwSwapInterval(1);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -69,21 +69,58 @@ void Game::init()
 void Game::setupScene()
 {
     m_brickTex = new Texture("resources/textures/brick_x32.png");
+    float halfW = 50.0f;
+    float halfH = 50.0f;
     std::vector<Vertex> verts = {
-        {{-50.0f, -50.0f, 0.0f}, {0.0f, 0.0f}}, //
-        {{50.0f, -50.0f, 0.0f}, {1.0f, 0.0f}},  //
-        {{50.0f, 50.0f, 0.0f}, {1.0f, 1.0f}},   //
-        {{-50.0f, 50.0f, 0.0f}, {0.0f, 1.0f}},  //
+        {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}}, //
+        {{halfW, -halfH, 0.0f}, {1.0f, 0.0f}},  //
+        {{halfW, halfH, 0.0f}, {1.0f, 1.0f}},   //
+        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f}},  //
     };
     std::vector<unsigned> inds = {0, 1, 2, 0, 2, 3};
 
     Mesh *quadMesh = new Mesh(verts, inds, *m_brickTex);
 
-    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(-50.0f, -50.0f));
-    SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(0.0f, 0.0f));
+    // SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
+    // SceneObject *obj3 = new SceneObject(*quadMesh, glm::vec2(-50.0f, 50.0f));
 
     m_renderer.getScene().addObject(obj1);
-    m_renderer.getScene().addObject(obj2);
+    // m_renderer.getScene().addObject(obj2);
+    // m_renderer.getScene().addObject(obj3);
+
+    /*
+    const float radius = 50.0f;
+    const int segments = 128;
+    std::vector<Vertex> circleVerts;
+    circleVerts.reserve(segments + 2);
+    circleVerts.push_back({
+        {0.0f, 0.0f, 0.0f}, {0.5f, 0.5f} // UV center of a white 1×1 texture or tile
+    });
+    for (int i = 0; i <= segments; ++i)
+    {
+        float theta = 2.0f * M_PI * float(i) / float(segments);
+        float x = cosf(theta) * radius;
+        float y = sinf(theta) * radius;
+        // Map the circle into the [0,1]×[0,1] UV space if you have a texture
+        float u = 0.5f + 0.5f * cosf(theta);
+        float v = 0.5f + 0.5f * sinf(theta);
+        circleVerts.push_back({{x, y, 0.0f}, {u, v}});
+    }
+    std::vector<unsigned> circleIdx;
+    circleIdx.reserve(segments * 3);
+    for (int i = 1; i <= segments; ++i)
+    {
+        circleIdx.push_back(0);     // center
+        circleIdx.push_back(i);     // current edge vertex
+        circleIdx.push_back(i + 1); // next edge vertex
+    }
+    Mesh *circleMesh = new Mesh(circleVerts, circleIdx, *m_brickTex);
+
+    // 4) Instance it as a SceneObject
+    SceneObject *circleObj = new SceneObject(*circleMesh, glm::vec2(100.0f, 100.0f));
+    m_renderer.getScene().addObject(circleObj);
+    */
 }
 
 void Game::gameLoop()
@@ -131,7 +168,7 @@ void Game::gameLoop()
 
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
-            ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 2.0f);
+            ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 5.0f);
             ImGui::SliderFloat2("Camera position", pos, -400.0f, 400.0f);
             ImGui::EndChild();
 
