@@ -131,8 +131,14 @@ void Game::gameLoop()
     bool TabDown = false;
     bool TabWasDown = false;
 
+    float &camZoom = m_renderer.getCamera().getZoom();
     float *zoom = &m_renderer.getCamera().getZoom();
+    glm::vec2 &camPos = m_renderer.getCamera().getPos();
     float *pos = glm::value_ptr(m_renderer.getCamera().getPos());
+
+    constexpr float zoomFactor = 1.0f / 1.01f;
+
+    glm::vec2 speed{0.0f, 0.0f};
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -142,6 +148,17 @@ void Game::gameLoop()
         TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
         if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
         TabWasDown = TabDown;
+
+        speed = {0.0f, 0.0f};
+        if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) speed.x += 100.0f;
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) speed.x += -100.0f;
+        if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) speed.y += 100.0f;
+        if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) speed.y += -100.0f;
+
+        camPos += speed * ImGui::GetIO().DeltaTime;
+
+        if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) camZoom *= 1.01f;
+        if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS) camZoom *= zoomFactor;
 
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
