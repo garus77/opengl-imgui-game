@@ -1,6 +1,7 @@
 #pragma once // game.h
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "player.h"
 #include "renderer.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -31,8 +32,9 @@ class Game
 
     Renderer m_renderer;
     Texture *m_brickTex;
-    Texture *m_carTex;
-    SceneObject *m_testObject;
+    //    Texture *m_carTex;
+    //    SceneObject *m_testObject;
+    Player m_player;
 
-    float *tmprotation;
+    //    float *tmprotation;
 };

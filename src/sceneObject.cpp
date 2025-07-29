@@ -6,6 +6,8 @@
 SceneObject::SceneObject(Mesh &mesh, const glm::vec2 &worldPosisiton, const glm::vec2 &scale, float rotation) : m_mesh(mesh), m_worldPos(worldPosisiton), m_scale(scale), m_rotation(rotation) {}
 
 void SceneObject::setPosition(const glm::vec2 &worldPosition) { m_worldPos = worldPosition; }
+void SceneObject::setScale(const glm::vec2 &scale) { m_scale = scale; }
+void SceneObject::setRotation(float rotation) { m_rotation = rotation; }
 
 void SceneObject::draw(GLuint shaderProgram) const
 {

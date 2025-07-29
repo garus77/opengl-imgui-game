@@ -69,18 +69,18 @@ void Game::init()
 void Game::setupScene()
 {
     m_brickTex = new Texture("resources/textures/brick_x32.png");
-    m_carTex = new Texture("resources/textures/car_tex.png");
 
     using Vertices = std::vector<Vertex>;
     using Indicies = std::vector<unsigned>;
 
-    const float halfW = 50.0f;
-    const float halfH = 50.0f;
+    const float tiling = 100000.0f;
+    const float halfW = 50.0f * tiling;
+    const float halfH = 50.0f * tiling;
     Vertices rectVerts = {
-        {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}}, //
-        {{halfW, -halfH, 0.0f}, {1.0f, 0.0f}},  //
-        {{halfW, halfH, 0.0f}, {1.0f, 1.0f}},   //
-        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f}}   //
+        {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}},                 //
+        {{halfW, -halfH, 0.0f}, {1.0f * tiling, 0.0f}},         //
+        {{halfW, halfH, 0.0f}, {1.0f * tiling, 1.0f * tiling}}, //
+        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f * tiling}}          //
     };
     Indicies rectInds = {
         0, 1, 2, //
@@ -103,7 +103,7 @@ void Game::setupScene()
     };
     Mesh *testMesh = new Mesh(testVerts, testInds, *m_brickTex);
 
-    const float halfLen = 40.0f;
+    /*const float halfLen = 40.0f;
     const float halfWidth = 30.0f;
     const float halfTipWidth = 20.0f;
     const float tipLen = 20.0f;
@@ -125,20 +125,35 @@ void Game::setupScene()
         1, 6, 7, //
         1, 7, 2, //
     };
-    Mesh *carMesh = new Mesh(carVerts, carInds, *m_carTex);
+    m_carTex = new Texture("resources/textures/car_tex.png");
+    Mesh *carMesh = new Mesh(carVerts, carInds, *m_carTex);*/
 
-    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(100.0f, 100.0f), glm::vec2(1.0f), 0.0f);
-    SceneObject *obj2 = new SceneObject(*testMesh, glm::vec2(100.0f, 0.0f), glm::vec2(1.0f), 0.0f);
-    SceneObject *obj3 = new SceneObject(*carMesh, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f), 0.0f);
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(100.0f, 100.0f), glm::vec2(1.0f), 0.0f); // brick tile
+    SceneObject *obj2 = new SceneObject(*testMesh, glm::vec2(100.0f, 0.0f), glm::vec2(1.0f), 0.0f);   // hourglass
+    // SceneObject *obj3 = new SceneObject(*carMesh, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f), 0.0f);      // car
 
-    m_testObject = obj3;
-    tmprotation = m_testObject->getRotation();
+    // m_testObject = obj3;
+    // tmprotation = m_testObject->getRotation();
+
     // SceneObject *obj3 = new SceneObject(*quadMesh, glm::vec2(-50.0f, 50.0f));
+
+    /*
+    for (int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 100; j++)
+        {
+            SceneObject *object = new SceneObject(*quadMesh, glm::vec2(i * 100.0f, j * 100.0f), glm::vec2(1.0f), 0.0f);
+            m_renderer.getScene().addObject(object);
+        }
+    }
+    */
 
     m_renderer.getScene().addObject(obj2);
     m_renderer.getScene().addObject(obj1);
-    m_renderer.getScene().addObject(m_testObject);
+    //    m_renderer.getScene().addObject(m_testObject);
     // m_renderer.getScene().addObject(obj3);
+
+    m_player.init(m_renderer);
 
     /*
     const float radius = 50.0f;
@@ -190,6 +205,7 @@ void Game::gameLoop()
     glm::vec2 speed{0.0f, 0.0f};
 
     float deltaTime;
+    const auto &data = m_player.m_data;
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -197,20 +213,22 @@ void Game::gameLoop()
         glfwPollEvents();
 
         deltaTime = ImGui::GetIO().DeltaTime;
+        m_player.handleInput(m_window);
+        m_player.update(deltaTime);
 
         TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
         if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
         TabWasDown = TabDown;
 
-        speed = {0.0f, 0.0f};
+        /*speed = {0.0f, 0.0f};
         if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) speed.x += 100.0f;
         if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) speed.x += -100.0f;
         if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) speed.y += 100.0f;
         if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) speed.y += -100.0f;
 
-        camPos += speed * deltaTime;
+        camPos += speed * deltaTime;*/
 
-        m_testObject->setPosition(camPos);
+        // m_testObject->setPosition(camPos);
 
         if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) camZoom *= 1.0f + 1.0f * deltaTime;
         if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS) camZoom /= 1.0f + 1.0f * deltaTime;
@@ -228,8 +246,8 @@ void Game::gameLoop()
             ImGui::Text("This is a GLEW + GLFW + ImGui demo");
             ImGui::Text("Button pressed %d times", counter);
             ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-            ImGui::Text("Test: %.5f miliseconds", ImGui::GetIO().DeltaTime * 1000.0f);
-            ImGui::Text("Test: %s", ImGui::GetIO().IniFilename);
+            ImGui::Text("mSPF: %.5f miliseconds", ImGui::GetIO().DeltaTime * 1000.0f);
+            ImGui::Text("Runtime: %.2f", ImGui::GetTime());
             ImGui::Text("Mouse: %.2f, %.2f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
             if (ImGui::Button("Click Me"))
             {
@@ -238,16 +256,28 @@ void Game::gameLoop()
             }
             ImGui::Checkbox("Enable demo window", &show_demo_window);
 
-            if (ImGui::Button("TELEPORT ME"))
-            {
-                m_testObject->setPosition(camPos);
-            }
+            ImGui::BeginChild("alldata", ImVec2(0, 0), true);
 
-            ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
-            ImGui::Text("Im a child!");
+            ImGui::Text("Camera data:");
             ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 5.0f);
             ImGui::SliderFloat2("Camera position", pos, -400.0f, 400.0f);
-            ImGui::SliderFloat("Camera position", tmprotation, -400.0f, 400.0f);
+
+            ImGui::Text("Car params:");
+            ImGui::SliderFloat("Max Speed", &m_player.m_constData.maxSpeed, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("Acceleration rate", &m_player.m_constData.accelerationRate, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("Max turn rate", &m_player.m_constData.maxTurnRate, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("Turn rate", &m_player.m_constData.turnRate, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("Angular drag", &m_player.m_constData.angularDrag, 0.0f, 3.0f);
+            ImGui::SliderFloat("Linear drag", &m_player.m_constData.linearDrag, 0.0f, 3.0f);
+
+            ImGui::BeginChild("cardata", ImVec2(0, 0), true);
+            ImGui::Text("Car data:");
+            ImGui::Text("Steering: %.1f, Throttle: %.1f", data.m_steer, data.m_throttle);
+            ImGui::Text("Rotation: %.2f, Angular velocity: %.2f", data.m_rotation, data.m_angularVelocity);
+            ImGui::Text("Position: %.2f, %.2f", data.m_position.x, data.m_position.y);
+            ImGui::Text("Velocity: %.2f, %.2f", data.m_velocity.x, data.m_velocity.y);
+            ImGui::EndChild();
+
             ImGui::EndChild();
 
             ImGui::End();

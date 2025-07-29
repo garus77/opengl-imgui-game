@@ -8,6 +8,8 @@ class SceneObject
     SceneObject(Mesh &mesh, const glm::vec2 &worldPosisiton, const glm::vec2 &scale, float rotation);
     void draw(GLuint shaderProgram) const;
     void setPosition(const glm::vec2 &worldPosition);
+    void setScale(const glm::vec2 &scale);
+    void setRotation(float rotation);
 
     float *getRotation() { return &m_rotation; } // tmp function to reveal rotation
 
