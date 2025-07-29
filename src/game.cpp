@@ -69,24 +69,75 @@ void Game::init()
 void Game::setupScene()
 {
     m_brickTex = new Texture("resources/textures/brick_x32.png");
-    float halfW = 50.0f;
-    float halfH = 50.0f;
-    std::vector<Vertex> verts = {
+    m_carTex = new Texture("resources/textures/car_tex.png");
+
+    using Vertices = std::vector<Vertex>;
+    using Indicies = std::vector<unsigned>;
+
+    const float halfW = 50.0f;
+    const float halfH = 50.0f;
+    Vertices rectVerts = {
         {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}}, //
         {{halfW, -halfH, 0.0f}, {1.0f, 0.0f}},  //
         {{halfW, halfH, 0.0f}, {1.0f, 1.0f}},   //
-        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f}},  //
+        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f}}   //
     };
-    std::vector<unsigned> inds = {0, 1, 2, 0, 2, 3};
+    Indicies rectInds = {
+        0, 1, 2, //
+        0, 2, 3  //
+    };
+    Mesh *quadMesh = new Mesh(rectVerts, rectInds, *m_brickTex);
 
-    Mesh *quadMesh = new Mesh(verts, inds, *m_brickTex);
+    const float width = 50.0f;
+    const float height = 50.0f;
+    Vertices testVerts = {
+        {{-width, -height, 0.0f}, {0.0f, 0.0f}}, //
+        {{width, -height, 0.0f}, {1.0f, 0.0f}},  //
+        {{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},      //
+        {{width, height, 0.0f}, {1.0f, 1.0f}},   //
+        {{-width, height, 0.0f}, {0.0f, 1.0f}},  //
+    };
+    Indicies testInds = {
+        0, 1, 2, //
+        2, 3, 4  //
+    };
+    Mesh *testMesh = new Mesh(testVerts, testInds, *m_brickTex);
 
-    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(0.0f, 0.0f));
-    // SceneObject *obj2 = new SceneObject(*quadMesh, glm::vec2(50.0f, 50.0f));
+    const float halfLen = 40.0f;
+    const float halfWidth = 30.0f;
+    const float halfTipWidth = 20.0f;
+    const float tipLen = 20.0f;
+    Vertices carVerts = {
+        {{-halfLen, -halfWidth, 0.0f}, {0.25f, 0.0f}},            // 0
+        {{halfLen, -halfWidth, 0.0f}, {0.75f, 0.0f}},             // 1
+        {{halfLen, halfWidth, 0.0f}, {0.75f, 1.0f}},              // 2
+        {{-halfLen, halfWidth, 0.0f}, {0.25f, 1.0f}},             // 3
+        {{-halfLen - tipLen, halfTipWidth, 0.0f}, {0.0f, 1.0f}},  // 4
+        {{-halfLen - tipLen, -halfTipWidth, 0.0f}, {0.0f, 0.0f}}, // 5
+        {{halfLen + tipLen, -halfTipWidth, 0.0f}, {1.0f, 0.0f}},  // 6
+        {{halfLen + tipLen, halfTipWidth, 0.0f}, {1.0f, 1.0f}},   // 7
+    };
+    Indicies carInds = {
+        0, 1, 2, //
+        0, 2, 3, //
+        5, 0, 3, //
+        5, 3, 4, //
+        1, 6, 7, //
+        1, 7, 2, //
+    };
+    Mesh *carMesh = new Mesh(carVerts, carInds, *m_carTex);
+
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(100.0f, 100.0f), glm::vec2(1.0f), 0.0f);
+    SceneObject *obj2 = new SceneObject(*testMesh, glm::vec2(100.0f, 0.0f), glm::vec2(1.0f), 0.0f);
+    SceneObject *obj3 = new SceneObject(*carMesh, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f), 0.0f);
+
+    m_testObject = obj3;
+    tmprotation = m_testObject->getRotation();
     // SceneObject *obj3 = new SceneObject(*quadMesh, glm::vec2(-50.0f, 50.0f));
 
+    m_renderer.getScene().addObject(obj2);
     m_renderer.getScene().addObject(obj1);
-    // m_renderer.getScene().addObject(obj2);
+    m_renderer.getScene().addObject(m_testObject);
     // m_renderer.getScene().addObject(obj3);
 
     /*
@@ -136,14 +187,16 @@ void Game::gameLoop()
     glm::vec2 &camPos = m_renderer.getCamera().getPos();
     float *pos = glm::value_ptr(m_renderer.getCamera().getPos());
 
-    constexpr float zoomFactor = 1.0f / 1.01f;
-
     glm::vec2 speed{0.0f, 0.0f};
+
+    float deltaTime;
 
     while (!glfwWindowShouldClose(m_window))
     {
         // Poll events
         glfwPollEvents();
+
+        deltaTime = ImGui::GetIO().DeltaTime;
 
         TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
         if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
@@ -155,10 +208,12 @@ void Game::gameLoop()
         if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) speed.y += 100.0f;
         if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) speed.y += -100.0f;
 
-        camPos += speed * ImGui::GetIO().DeltaTime;
+        camPos += speed * deltaTime;
 
-        if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) camZoom *= 1.01f;
-        if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS) camZoom *= zoomFactor;
+        m_testObject->setPosition(camPos);
+
+        if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) camZoom *= 1.0f + 1.0f * deltaTime;
+        if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS) camZoom /= 1.0f + 1.0f * deltaTime;
 
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -183,14 +238,30 @@ void Game::gameLoop()
             }
             ImGui::Checkbox("Enable demo window", &show_demo_window);
 
+            if (ImGui::Button("TELEPORT ME"))
+            {
+                m_testObject->setPosition(camPos);
+            }
+
             ImGui::BeginChild("CHILD", ImVec2(0, 0), true);
             ImGui::Text("Im a child!");
             ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 5.0f);
             ImGui::SliderFloat2("Camera position", pos, -400.0f, 400.0f);
+            ImGui::SliderFloat("Camera position", tmprotation, -400.0f, 400.0f);
             ImGui::EndChild();
 
             ImGui::End();
         }
+
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::Begin("##fps", nullptr,
+                     ImGuiWindowFlags_NoDecoration           //
+                         | ImGuiWindowFlags_AlwaysAutoResize //
+                         | ImGuiWindowFlags_NoInputs         //
+                         | ImGuiWindowFlags_NoBackground     //
+        );
+        ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
+        ImGui::End();
 
         // m_renderer.getCamera().setZoom(zoom);
 

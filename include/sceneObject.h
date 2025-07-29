@@ -5,11 +5,15 @@
 class SceneObject
 {
   public:
-    SceneObject(Mesh &mesh, const glm::vec2 &worldPosisiton);
+    SceneObject(Mesh &mesh, const glm::vec2 &worldPosisiton, const glm::vec2 &scale, float rotation);
     void draw(GLuint shaderProgram) const;
     void setPosition(const glm::vec2 &worldPosition);
+
+    float *getRotation() { return &m_rotation; } // tmp function to reveal rotation
 
   private:
     Mesh m_mesh;
     glm::vec2 m_worldPos;
+    glm::vec2 m_scale;
+    float m_rotation;
 };
