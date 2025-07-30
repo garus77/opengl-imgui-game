@@ -11,8 +11,6 @@ class SceneObject
     void setScale(const glm::vec2 &scale);
     void setRotation(float rotation);
 
-    float *getRotation() { return &m_rotation; } // tmp function to reveal rotation
-
   private:
     Mesh m_mesh;
     glm::vec2 m_worldPos;

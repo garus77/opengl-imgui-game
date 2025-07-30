@@ -53,6 +53,7 @@ void Player::handleInput(GLFWwindow *window, float deltaTime)
     if (!(wKey == GLFW_PRESS) && !(sKey == GLFW_PRESS)) m_data.m_throttle = 0.0f;
     if (wKey == GLFW_PRESS) m_data.m_throttle += 1.0f * deltaTime;
     if (sKey == GLFW_PRESS) m_data.m_throttle -= 0.5f * deltaTime;
+    if (sKey == GLFW_PRESS && wKey == GLFW_PRESS) m_data.m_throttle -= 0.5f * deltaTime;
     m_data.m_throttle = std::clamp(m_data.m_throttle, -1.0f, 1.0f);
 
     int aKey = glfwGetKey(window, GLFW_KEY_A);
@@ -61,13 +62,6 @@ void Player::handleInput(GLFWwindow *window, float deltaTime)
     if (aKey == GLFW_PRESS) m_data.m_steer += 3.0f * deltaTime;
     if (dKey == GLFW_PRESS) m_data.m_steer -= 3.0f * deltaTime;
     m_data.m_steer = std::clamp(m_data.m_steer, -1.0f, 1.0f);
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-
-        m_constData.accelerationRate = 500.0f;
-        m_constData.linearDrag = 0.5f;
-    }
 }
 
 void Player::update(float deltaTime)

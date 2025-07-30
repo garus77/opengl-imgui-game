@@ -89,105 +89,10 @@ void Game::setupScene()
     };
     Mesh *quadMesh = new Mesh(rectVerts, rectInds, *m_raceTrackTex);
 
-    const float width = 50.0f;
-    const float height = 50.0f;
-    Vertices testVerts = {
-        {{-width, -height, 0.0f}, {0.0f, 0.0f}}, //
-        {{width, -height, 0.0f}, {1.0f, 0.0f}},  //
-        {{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},      //
-        {{width, height, 0.0f}, {1.0f, 1.0f}},   //
-        {{-width, height, 0.0f}, {0.0f, 1.0f}},  //
-    };
-    Indicies testInds = {
-        0, 1, 2, //
-        2, 3, 4  //
-    };
-    Mesh *testMesh = new Mesh(testVerts, testInds, *m_brickTex);
-
-    /*const float halfLen = 40.0f;
-    const float halfWidth = 30.0f;
-    const float halfTipWidth = 20.0f;
-    const float tipLen = 20.0f;
-    Vertices carVerts = {
-        {{-halfLen, -halfWidth, 0.0f}, {0.25f, 0.0f}},            // 0
-        {{halfLen, -halfWidth, 0.0f}, {0.75f, 0.0f}},             // 1
-        {{halfLen, halfWidth, 0.0f}, {0.75f, 1.0f}},              // 2
-        {{-halfLen, halfWidth, 0.0f}, {0.25f, 1.0f}},             // 3
-        {{-halfLen - tipLen, halfTipWidth, 0.0f}, {0.0f, 1.0f}},  // 4
-        {{-halfLen - tipLen, -halfTipWidth, 0.0f}, {0.0f, 0.0f}}, // 5
-        {{halfLen + tipLen, -halfTipWidth, 0.0f}, {1.0f, 0.0f}},  // 6
-        {{halfLen + tipLen, halfTipWidth, 0.0f}, {1.0f, 1.0f}},   // 7
-    };
-    Indicies carInds = {
-        0, 1, 2, //
-        0, 2, 3, //
-        5, 0, 3, //
-        5, 3, 4, //
-        1, 6, 7, //
-        1, 7, 2, //
-    };
-    m_carTex = new Texture("resources/textures/car_tex.png");
-    Mesh *carMesh = new Mesh(carVerts, carInds, *m_carTex);*/
-
-    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(100.0f, 100.0f), glm::vec2(1.0f), 0.0f); // brick tile
-    SceneObject *obj2 = new SceneObject(*testMesh, glm::vec2(100.0f, 0.0f), glm::vec2(1.0f), 0.0f);   // hourglass
-    // SceneObject *obj3 = new SceneObject(*carMesh, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f), 0.0f);      // car
-
-    // m_testObject = obj3;
-    // tmprotation = m_testObject->getRotation();
-
-    // SceneObject *obj3 = new SceneObject(*quadMesh, glm::vec2(-50.0f, 50.0f));
-
-    /*
-    for (int i = 0; i < 100; i++)
-    {
-        for (int j = 0; j < 100; j++)
-        {
-            SceneObject *object = new SceneObject(*quadMesh, glm::vec2(i * 100.0f, j * 100.0f), glm::vec2(1.0f), 0.0f);
-            m_renderer.getScene().addObject(object);
-        }
-    }
-    */
-
-    m_renderer.getScene().addObject(obj2);
+    SceneObject *obj1 = new SceneObject(*quadMesh, glm::vec2(100.0f, 100.0f), glm::vec2(1.0f), 0.0f);
     m_renderer.getScene().addObject(obj1);
-    //    m_renderer.getScene().addObject(m_testObject);
-    // m_renderer.getScene().addObject(obj3);
 
     m_player.init(m_renderer);
-
-    /*
-    const float radius = 50.0f;
-    const int segments = 128;
-    std::vector<Vertex> circleVerts;
-    circleVerts.reserve(segments + 2);
-    circleVerts.push_back({
-        {0.0f, 0.0f, 0.0f}, {0.5f, 0.5f} // UV center of a white 1×1 texture or tile
-    });
-    for (int i = 0; i <= segments; ++i)
-    {
-        float theta = 2.0f * M_PI * float(i) / float(segments);
-        float x = cosf(theta) * radius;
-        float y = sinf(theta) * radius;
-        // Map the circle into the [0,1]×[0,1] UV space if you have a texture
-        float u = 0.5f + 0.5f * cosf(theta);
-        float v = 0.5f + 0.5f * sinf(theta);
-        circleVerts.push_back({{x, y, 0.0f}, {u, v}});
-    }
-    std::vector<unsigned> circleIdx;
-    circleIdx.reserve(segments * 3);
-    for (int i = 1; i <= segments; ++i)
-    {
-        circleIdx.push_back(0);     // center
-        circleIdx.push_back(i);     // current edge vertex
-        circleIdx.push_back(i + 1); // next edge vertex
-    }
-    Mesh *circleMesh = new Mesh(circleVerts, circleIdx, *m_brickTex);
-
-    // 4) Instance it as a SceneObject
-    SceneObject *circleObj = new SceneObject(*circleMesh, glm::vec2(100.0f, 100.0f));
-    m_renderer.getScene().addObject(circleObj);
-    */
 }
 
 void Game::gameLoop()
@@ -200,10 +105,7 @@ void Game::gameLoop()
 
     float &camZoom = m_renderer.getCamera().getZoom();
     float *zoom = &m_renderer.getCamera().getZoom();
-    glm::vec2 &camPos = m_renderer.getCamera().getPos();
     float *pos = glm::value_ptr(m_renderer.getCamera().getPos());
-
-    glm::vec2 speed{0.0f, 0.0f};
 
     float deltaTime;
     const auto &data = m_player.m_data;
@@ -221,16 +123,6 @@ void Game::gameLoop()
         if (TabDown && !TabWasDown) showControlPanel = !showControlPanel;
         TabWasDown = TabDown;
 
-        /*speed = {0.0f, 0.0f};
-        if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) speed.x += 100.0f;
-        if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) speed.x += -100.0f;
-        if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) speed.y += 100.0f;
-        if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) speed.y += -100.0f;
-
-        camPos += speed * deltaTime;*/
-
-        // m_testObject->setPosition(camPos);
-
         if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) camZoom *= 1.0f + 1.0f * deltaTime;
         if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS) camZoom /= 1.0f + 1.0f * deltaTime;
 
@@ -239,7 +131,7 @@ void Game::gameLoop()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Example ImGui window
+        // Control panel
         if (showControlPanel)
         {
             ImGui::Begin("Control Panel (Tab to toggle)");
@@ -252,7 +144,6 @@ void Game::gameLoop()
             ImGui::Text("Mouse: %.2f, %.2f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
             if (ImGui::Button("Click Me"))
             {
-                // std::cout << "Flag is: " << flag;
                 counter++;
             }
             ImGui::Checkbox("Enable demo window", &show_demo_window);
@@ -274,7 +165,7 @@ void Game::gameLoop()
 
             ImGui::BeginChild("cardata", ImVec2(0, 0), true);
             ImGui::Text("Car data:");
-            ImGui::Text("Steering: %.1f, Throttle: %.1f", data.m_steer, data.m_throttle);
+            ImGui::Text("Steering: %.2f, Throttle: %.2f", data.m_steer, data.m_throttle);
             ImGui::Text("Angular velocity: %.2f, Rotation: %.2f", data.m_angularVelocity, data.m_rotation);
             ImGui::Text("Position: %.2f, %.2f", data.m_position.x, data.m_position.y);
             ImGui::Text("Velocity: %.2f, %.2f", data.m_velocity.x, data.m_velocity.y);
@@ -294,8 +185,6 @@ void Game::gameLoop()
         );
         ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
         ImGui::End();
-
-        // m_renderer.getCamera().setZoom(zoom);
 
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
