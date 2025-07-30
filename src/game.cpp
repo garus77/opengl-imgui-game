@@ -48,7 +48,7 @@ void Game::init()
                                        Renderer *R = static_cast<Renderer *>(glfwGetWindowUserPointer(win));
                                        if (R) R->onResize(w, h);
                                    });
-    glfwSwapInterval(1);
+    // glfwSwapInterval(1);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -69,24 +69,25 @@ void Game::init()
 void Game::setupScene()
 {
     m_brickTex = new Texture("resources/textures/brick_x32.png");
+    m_raceTrackTex = new Texture("resources/textures/race_track.png");
 
     using Vertices = std::vector<Vertex>;
     using Indicies = std::vector<unsigned>;
 
     const float tiling = 100000.0f;
-    const float halfW = 50.0f * tiling;
-    const float halfH = 50.0f * tiling;
+    const float halfW = 512.0f * 5.0f;
+    const float halfH = 512.0f * 5.0f;
     Vertices rectVerts = {
-        {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}},                 //
-        {{halfW, -halfH, 0.0f}, {1.0f * tiling, 0.0f}},         //
-        {{halfW, halfH, 0.0f}, {1.0f * tiling, 1.0f * tiling}}, //
-        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f * tiling}}          //
+        {{-halfW, -halfH, 0.0f}, {0.0f, 0.0f}}, //
+        {{halfW, -halfH, 0.0f}, {1.0f, 0.0f}},  //
+        {{halfW, halfH, 0.0f}, {1.0f, 1.0f}},   //
+        {{-halfW, halfH, 0.0f}, {0.0f, 1.0f}}   //
     };
     Indicies rectInds = {
         0, 1, 2, //
         0, 2, 3  //
     };
-    Mesh *quadMesh = new Mesh(rectVerts, rectInds, *m_brickTex);
+    Mesh *quadMesh = new Mesh(rectVerts, rectInds, *m_raceTrackTex);
 
     const float width = 50.0f;
     const float height = 50.0f;
@@ -213,7 +214,7 @@ void Game::gameLoop()
         glfwPollEvents();
 
         deltaTime = ImGui::GetIO().DeltaTime;
-        m_player.handleInput(m_window);
+        m_player.handleInput(m_window, deltaTime);
         m_player.update(deltaTime);
 
         TabDown = (glfwGetKey(m_window, GLFW_KEY_TAB) == GLFW_PRESS);
@@ -261,10 +262,11 @@ void Game::gameLoop()
             ImGui::Text("Camera data:");
             ImGui::SliderFloat("Camera zoom", zoom, 0.1f, 5.0f);
             ImGui::SliderFloat2("Camera position", pos, -400.0f, 400.0f);
+            ImGui::SliderFloat("Camera smoothing", &m_player.m_constData.cameraSmoothing, 0.0f, 30.0f);
 
             ImGui::Text("Car params:");
-            ImGui::SliderFloat("Max Speed", &m_player.m_constData.maxSpeed, -1000.0f, 1000.0f);
-            ImGui::SliderFloat("Acceleration rate", &m_player.m_constData.accelerationRate, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("Max Speed", &m_player.m_constData.maxSpeed, 10.0f, 1000.0f);
+            ImGui::SliderFloat("Acceleration rate", &m_player.m_constData.accelerationRate, 10.0f, 1000.0f);
             ImGui::SliderFloat("Max turn rate", &m_player.m_constData.maxTurnRate, -1000.0f, 1000.0f);
             ImGui::SliderFloat("Turn rate", &m_player.m_constData.turnRate, -1000.0f, 1000.0f);
             ImGui::SliderFloat("Angular drag", &m_player.m_constData.angularDrag, 0.0f, 3.0f);
@@ -273,7 +275,7 @@ void Game::gameLoop()
             ImGui::BeginChild("cardata", ImVec2(0, 0), true);
             ImGui::Text("Car data:");
             ImGui::Text("Steering: %.1f, Throttle: %.1f", data.m_steer, data.m_throttle);
-            ImGui::Text("Rotation: %.2f, Angular velocity: %.2f", data.m_rotation, data.m_angularVelocity);
+            ImGui::Text("Angular velocity: %.2f, Rotation: %.2f", data.m_angularVelocity, data.m_rotation);
             ImGui::Text("Position: %.2f, %.2f", data.m_position.x, data.m_position.y);
             ImGui::Text("Velocity: %.2f, %.2f", data.m_velocity.x, data.m_velocity.y);
             ImGui::EndChild();

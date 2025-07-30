@@ -32,6 +32,7 @@ class Game
 
     Renderer m_renderer;
     Texture *m_brickTex;
+    Texture *m_raceTrackTex;
     //    Texture *m_carTex;
     //    SceneObject *m_testObject;
     Player m_player;

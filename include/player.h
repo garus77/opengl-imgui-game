@@ -14,6 +14,7 @@ struct PlayerConstData
     float maxTurnRate;
     float turnRate;
     float angularDrag;
+    float cameraSmoothing;
 };
 
 struct PlayerData
@@ -32,7 +33,7 @@ class Player
   public:
     Player();
     void update(float deltaTime);
-    void handleInput(GLFWwindow *window);
+    void handleInput(GLFWwindow *window, float deltaTime);
     void init(Renderer &renderer);
 
     PlayerData m_data;
